@@ -1,0 +1,12 @@
+version: '3'
+services:
+  miniflux-postgres:
+    build: .
+    image: miniflux-postgres
+    restart: always
+    container_name: miniflux-postgres
+
+# docker system prune -a
+# docker compose build 
+# docker tag miniflux-postgres:latest aaronlee/miniflux-postgres:15-bullseye
+# docker push  aaronlee/miniflux-postgres:15-bullseye
