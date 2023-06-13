@@ -27,4 +27,4 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: aaronlee/miniflux-postgres:15-bullseye
+          tags: aaronlee/miniflux-postgres:15-bullseye,aaronlee/miniflux-postgres:15.3-bullseye
