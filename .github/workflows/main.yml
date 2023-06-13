@@ -1,39 +1,29 @@
-name: miniflux-postgres-zhparser
+name: Docker Push
 
 on:
   push:
     branches:
-      - master
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    # Run every day at 5:30 and 17:30:
-    - cron:  '37 17 * * 3'
-  workflow_dispatch:
+      - 'main'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        pg_version: [15]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v2
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
         with:
-          context: .
-          build-args: |
-            pg_version=${{ matrix.pg_version }}
-          platforms: linux/amd64
           push: true
-          tags: ${{ secrets.DOCKERHUB_IMAGE_NAME }}:${{ matrix.pg_version }}-alpine-1
+          tags: aaronlee/miniflux-postgres:15-bullseye
