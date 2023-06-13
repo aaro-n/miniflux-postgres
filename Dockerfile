@@ -48,5 +48,5 @@ RUN apt-get update \
             /var/lib/apt/lists/*
 
 RUN mkdir -p /docker-entrypoint-initdb.d
-COPY install_extension.sql init_extension.sh /docker-entrypoint-initdb.d/
+COPY  config/init_extension.sh /docker-entrypoint-initdb.d/
 RUN chmod 755 /docker-entrypoint-initdb.d/init_extension.sh
