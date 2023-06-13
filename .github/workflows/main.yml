@@ -34,6 +34,6 @@ jobs:
           context: .
           build-args: |
             pg_version=${{ matrix.pg_version }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+          platforms: linux/amd64
           push: true
           tags: ${{ secrets.DOCKERHUB_IMAGE_NAME }}:${{ matrix.pg_version }}-alpine-1
