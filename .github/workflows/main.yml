@@ -43,26 +43,18 @@ jobs:
         run: |
           echo "${{ steps.docker_version.outputs.version }}" > version
 
-      - name: Set build timestamp
-        id: set-timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y%m%d%H%M%S')"
-
       - name: Build and push Docker image
         if: steps.check_build.outputs.build == 'true'
         uses: docker/build-push-action@v2
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         id: set-timestamp
-       with:
-         context: .
-         platforms: linux/arm64,linux/arm/v7,linux/amd64
-         push: true
-         tags: |
-           aaronlee/miniflux-postgres:latest
-           aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}
-           aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}-${{ steps.set-timestamp.outputs.timestamp }}
-          
+        with:
+          context: .
+          platforms: linux/arm64,linux/arm/v7,linux/amd64
+          push: true
+          tags: |
+            aaronlee/miniflux-postgres:latest
+            aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}
+            aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}-${{ steps.set-timestamp.outputs.timestamp }}
 
       - name: Configure Git credentials
         run: |
