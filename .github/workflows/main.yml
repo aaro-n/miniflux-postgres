@@ -34,7 +34,17 @@ jobs:
 
       - name: Write version to file
         if: steps.check_build.outputs.build == 'true'
-        run: echo "${{ steps.docker_version.outputs.version }}" > version
+        run: |
+          echo "${{ steps.docker_version.outputs.version }}" > version.txt
+          echo "version.txt" > .gitignore
+
+      - name: Create or update version file
+        if: steps.check_build.outputs.build == 'true'
+        uses: actions/create-file@v2
+        with:
+          path: version
+          content: |
+            ${{ steps.docker_version.outputs.version }}
 
       - name: Build and push Docker image
         if: steps.check_build.outputs.build == 'true'
