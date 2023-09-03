@@ -16,7 +16,7 @@ jobs:
       - name: Compare versions
         id: compare-versions
         run: |
-          DOCKER_VERSION=$(docker build -t ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest . && docker run --rm your-postgres-image:latest postgres --version | awk '{print $3}')
+          DOCKER_VERSION=$(docker build -t ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest . && docker run --rm ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest postgres --version | awk '{print $3}')
           CURRENT_VERSION=$(cat version)
           if [ "$CURRENT_VERSION" = "$DOCKER_VERSION" ]; then
             echo "::set-output name=skip_build::true"
