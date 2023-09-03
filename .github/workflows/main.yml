@@ -32,6 +32,10 @@ jobs:
             echo "::set-output name=build::false"
           fi
 
+      - name: Write version to file
+        if: steps.check_build.outputs.build == 'true'
+        run: echo "${{ steps.docker_version.outputs.version }}" > version
+
       - name: Build and push Docker image
         if: steps.check_build.outputs.build == 'true'
         env:
