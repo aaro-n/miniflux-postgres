@@ -66,7 +66,7 @@ jobs:
           tags: |
              ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:latest
              ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}
-             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}-${{ github.run_number }}
+             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}-$(date +%Y%m%d%H%M%S)
 
       - name: Configure Git credentials
         run: |
