@@ -6,39 +6,38 @@ on:
       - main
 
 jobs:
-  extract-version:
+  build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Extract version from file
-        id: extract-version
+      - name: Get PostgreSQL version from Docker image
+        id: docker_version
         run: |
-          CURRENT_VERSION=$(cat version.txt)
-          echo "::set-output name=current_version::$CURRENT_VERSION"
+          docker pull postgres:15
+          echo "::set-output name=version::$(docker run --rm postgres:15 postgres --version | awk '{print $3}')"
 
-      - name: Compare versions
-        id: compare-versions
+      - name: Read version from file
+        id: version
+        run: echo "::set-output name=version::$(cat version)"
+
+      - name: Check if Docker image needs to be built
+        id: check_build
         run: |
-          DOCKER_VERSION=$(docker run --rm postgres:15 postgres --version | awk '{print $3}')
-          if [ "${{ steps.extract-version.outputs.current_version }}" = "$DOCKER_VERSION" ]; then
-            echo "::set-output name=skip_build::true"
+          if [[ "${{ steps.docker_version.outputs.version }}" != "${{ steps.version.outputs.version }}" ]]; then
+            echo "::set-output name=build::true"
           else
-            echo "::set-output name=skip_build::false"
+            echo "::set-output name=build::false"
           fi
 
-      - name: Build and publish image
-        if: steps.compare-versions.outputs.skip_build == 'false'
+      - name: Build and push Docker image
+        if: steps.check_build.outputs.build == 'true'
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          echo $DOCKERHUB_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
-          docker build -t your-docker-image:latest .
-          docker tag aaronlee/miniflux-postgres:latest aaronlee/miniflux-postgres:${{ github.sha }}
-          docker tag aaronlee/miniflux-postgres:latest aaronlee/miniflux-postgres:${{ github.sha }}-$(date +%Y%m%d%H%M%S)
-          docker push aaronlee/miniflux-postgres:latest
-          docker push aaronlee/miniflux-postgres:${{ github.sha }}
-          docker push aaronlee/miniflux-postgres:${{ github.sha }}-$(date +%Y%m%d%H%M%S)
+          docker build -t aaronlee/postgres:15-bullseye-slim .
+          docker login -u $DOCKER_USERNAME -p $DOCKERHUB_TOKEN
+          docker push aaronlee/postgres:15-bullseye-slim
