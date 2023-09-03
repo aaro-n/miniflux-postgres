@@ -52,3 +52,15 @@ jobs:
           docker build -t aaronlee/miniflux-postgres:15-bullseye-slim .
           docker login -u $DOCKER_USERNAME -p $DOCKERHUB_TOKEN
           docker push aaronlee/miniflux-postgres:15-bullseye-slim
+
+      - name: Configure Git credentials
+        run: |
+          git config --global user.name "Your Name"
+          git config --global user.email "your-email@example.com"
+
+      - name: Commit and push version file
+        if: steps.check_build.outputs.build == 'true'
+        run: |
+          git add version
+          git commit -m "Update version file"
+          git push origin HEAD:main
