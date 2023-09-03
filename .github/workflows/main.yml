@@ -1,31 +1,31 @@
-name: Docker Build and Publish
+name: Docker 构建和发布
 
 on:
   push:
     branches:
       - main
-    schedule:
-      - cron: "33 1 */7 * *"
+  schedule:
+    - cron: "33 1 */7 * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 检出代码库
         uses: actions/checkout@v2
 
-      - name: Get PostgreSQL version from Docker image
+      - name: 获取 PostgreSQL 版本
         id: docker_version
         run: |
           docker pull postgres:15
           echo "::set-output name=version::$(docker run --rm postgres:15 postgres --version | awk '{print $3}')"
 
-      - name: Read version from file
+      - name: 读取版本号
         id: version
         run: echo "::set-output name=version::$(cat version)"
 
-      - name: Check if Docker image needs to be built
+      - name: 检查是否需要构建 Docker 镜像
         id: check_build
         run: |
           if [[ "${{ steps.docker_version.outputs.version }}" != "${{ steps.version.outputs.version }}" ]]; then
@@ -34,35 +34,35 @@ jobs:
             echo "::set-output name=build::false"
           fi
 
-      - name: Write version to file
+      - name: 写入版本号到文件
         if: steps.check_build.outputs.build == 'true'
         run: |
           echo "${{ steps.docker_version.outputs.version }}" > version.txt
           echo "version.txt" > .gitignore
 
-      - name: Create or update version file
+      - name: 创建或更新版本文件
         if: steps.check_build.outputs.build == 'true'
         run: |
           echo "${{ steps.docker_version.outputs.version }}" > version
 
-      - name: Login to Docker Hub
+      - name: 登录到 Docker Hub
         if: steps.check_build.outputs.build == 'true'
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }} 
 
-      - name: Set up QEMU
+      - name: 设置 QEMU
         uses: docker/setup-qemu-action@v1
 
-      - name: Set up Docker Buildx
+      - name: 设置 Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Set timestamp
+      - name: 设置时间戳
         id: set-timestamp
         run: echo "::set-output name=timestamp::$(date +%Y%m%d%H%M%S)"
 
-      - name: Build and push Docker image
+      - name: 构建并推送 Docker 镜像
         if: steps.check_build.outputs.build == 'true'
         uses: docker/build-push-action@v2
         with:
@@ -74,16 +74,13 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}
             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}-${{ steps.set-timestamp.outputs.timestamp }}
             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ env.DOCKER_VERSION_INT }}
-        env:
-         DOCKER_VERSION_INT: ${{ env.DOCKER_VERSION =~ '^([0-9]+)' && bash -c "echo \${BASH_REMATCH[1]}" }}
 
-
-      - name: Configure Git credentials
+      - name: 配置 Git 凭证
         run: |
           git config --global user.name "Your Name"
           git config --global user.email "your-email@example.com"
 
-      - name: Commit and push version file
+      - name: 提交并推送版本文件
         if: steps.check_build.outputs.build == 'true'
         run: |
           git add version
