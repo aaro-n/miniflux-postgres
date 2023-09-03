@@ -72,8 +72,10 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version.split('.')[0] }}
             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}-${{ steps.set-timestamp.outputs.timestamp }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ env.DOCKER_VERSION_INT }}
+        env:
+         DOCKER_VERSION_INT: ${{ env.DOCKER_VERSION =~ '^([0-9]+)' && bash -c "echo \${BASH_REMATCH[1]}" }}
 
 
       - name: Configure Git credentials
