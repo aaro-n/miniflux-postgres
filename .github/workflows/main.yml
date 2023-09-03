@@ -40,11 +40,8 @@ jobs:
 
       - name: Create or update version file
         if: steps.check_build.outputs.build == 'true'
-        uses: actions/create-file@v2
-        with:
-          path: version
-          content: |
-            ${{ steps.docker_version.outputs.version }}
+        run: |
+          echo "${{ steps.docker_version.outputs.version }}" > version
 
       - name: Build and push Docker image
         if: steps.check_build.outputs.build == 'true'
