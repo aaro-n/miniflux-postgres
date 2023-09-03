@@ -1,4 +1,4 @@
-name: Build and Publish Docker Image
+name: Docker Build and Publish
 
 on:
   push:
@@ -13,26 +13,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Docker
-        uses: docker/setup-docker@v2
-
       - name: Compare versions
         id: compare-versions
         run: |
-          DOCKER_VERSION=$(docker run --rm postgres:15 sh -c "postgres --version" | awk '{print $3}')
           CURRENT_VERSION=$(cat version)
+          DOCKER_VERSION=$(docker run --rm postgres:15 cat /version.txt)
           if [ "$CURRENT_VERSION" = "$DOCKER_VERSION" ]; then
             echo "::set-output name=skip_build::true"
           else
             echo "::set-output name=skip_build::false"
-            echo "$DOCKER_VERSION" > version
+          fi
 
-      - name: Build and publish Docker image
+      - name: Build and publish image
         if: steps.compare-versions.outputs.skip_build == 'false'
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           echo $DOCKERHUB_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
-          docker build -t $DOCKER_USERNAME/miniflux-postgres:latest .
-          docker push $DOCKER_USERNAME/miniflux-postgres:latest
+          docker build -t your-docker-image:latest .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:${{ github.sha }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:${{ github.sha }}-$(date +%Y%m%d%H%M%S)
+          docker push ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:${{ github.sha }}-$(date +%Y%m%d%H%M%S)
+
