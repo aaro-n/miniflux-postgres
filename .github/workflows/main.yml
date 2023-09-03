@@ -16,7 +16,7 @@ jobs:
       - name: Compare versions
         id: compare-versions
         run: |
-          DOCKER_VERSION=$(docker run --rm -it postgres:15 sh -c "postgres --version" | awk '{print $3}')
+          DOCKER_VERSION=$(docker run --rm postgres:15 sh -c "postgres --version" | awk '{print $3}')
           CURRENT_VERSION=$(cat version)
           if [ "$CURRENT_VERSION" = "$DOCKER_VERSION" ]; then
             echo "::set-output name=skip_build::true"
