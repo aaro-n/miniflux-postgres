@@ -34,5 +34,5 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           echo $DOCKERHUB_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest
+          docker build -t $DOCKER_USERNAME/miniflux-postgres:latest .
+          docker push $DOCKER_USERNAME/miniflux-postgres:latest
