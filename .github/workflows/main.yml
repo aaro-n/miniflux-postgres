@@ -42,10 +42,6 @@ jobs:
         if: steps.check_build.outputs.build == 'true'
         run: |
           echo "${{ steps.docker_version.outputs.version }}" > version
-          
-    - name: Set build timestamp
-        id: set-timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y%m%d%H%M%S')"
 
       - name: Build and push Docker image
         if: steps.check_build.outputs.build == 'true'
@@ -55,11 +51,10 @@ jobs:
         run: |
           docker build -t aaronlee/miniflux-postgres:latest .
           docker tag aaronlee/miniflux-postgres:latest aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}
-          docker tag aaronlee/miniflux-postgres:latest aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}--${{ steps.set-timestamp.outputs.timestamp }}
           docker login -u $DOCKER_USERNAME -p $DOCKERHUB_TOKEN
           docker push aaronlee/miniflux-postgres:latest
           docker push aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}
-          docker push aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}--${{ steps.set-timestamp.outputs.timestamp }}
+          
 
       - name: Configure Git credentials
         run: |
