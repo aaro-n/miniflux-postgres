@@ -6,22 +6,24 @@ on:
       - main
 
 jobs:
-  build-and-publish:
+  extract-version:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Pull PostgreSQL image
-        run: docker pull postgres:15
+      - name: Extract version from file
+        id: extract-version
+        run: |
+          CURRENT_VERSION=$(cat version.txt)
+          echo "::set-output name=current_version::$CURRENT_VERSION"
 
       - name: Compare versions
         id: compare-versions
         run: |
-          CURRENT_VERSION=$(cat version)
-          DOCKER_VERSION=$(docker run --rm postgres:15 cat /version.txt)
-          if [ "$CURRENT_VERSION" = "$DOCKER_VERSION" ]; then
+          DOCKER_VERSION=$(docker run --rm postgres:15 postgres --version | awk '{print $3}')
+          if [ "${{ steps.extract-version.outputs.current_version }}" = "$DOCKER_VERSION" ]; then
             echo "::set-output name=skip_build::true"
           else
             echo "::set-output name=skip_build::false"
