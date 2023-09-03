@@ -13,6 +13,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Pull PostgreSQL image
+        run: docker pull postgres:15
+
       - name: Compare versions
         id: compare-versions
         run: |
@@ -32,9 +35,8 @@ jobs:
         run: |
           echo $DOCKERHUB_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
           docker build -t your-docker-image:latest .
-          docker tag ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:${{ github.sha }}
-          docker tag ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:${{ github.sha }}-$(date +%Y%m%d%H%M%S)
-          docker push ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/miniflux-postgres:${{ github.sha }}-$(date +%Y%m%d%H%M%S)
-
+          docker tag aaronlee/miniflux-postgres:latest aaronlee/miniflux-postgres:${{ github.sha }}
+          docker tag aaronlee/miniflux-postgres:latest aaronlee/miniflux-postgres:${{ github.sha }}-$(date +%Y%m%d%H%M%S)
+          docker push aaronlee/miniflux-postgres:latest
+          docker push aaronlee/miniflux-postgres:${{ github.sha }}
+          docker push aaronlee/miniflux-postgres:${{ github.sha }}-$(date +%Y%m%d%H%M%S)
