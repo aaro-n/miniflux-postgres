@@ -43,18 +43,15 @@ jobs:
         run: |
           echo "${{ steps.docker_version.outputs.version }}" > version
 
-      - name: Login to Docker Hub
-        if: steps.check_build.outputs.build == 'true'
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+
+      - name: Set timestamp
+        id: set-timestamp
+        run: echo "::set-output name=timestamp::$(date +%Y%m%d%H%M%S)"
 
       - name: Build and push Docker image
         if: steps.check_build.outputs.build == 'true'
@@ -64,9 +61,9 @@ jobs:
           platforms: linux/arm64,linux/amd64
           push: true
           tags: |
-             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:latest
-             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}
-             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}-$(date +%Y%m%d%H%M%S)
+            ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}-${{ steps.set-timestamp.outputs.timestamp }}
 
       - name: Configure Git credentials
         run: |
