@@ -43,15 +43,53 @@ jobs:
         run: |
           echo "${{ steps.docker_version.outputs.version }}" > version
 
-      - name: Build and push Docker image
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push Docker image for amd64
         if: steps.check_build.outputs.build == 'true'
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          docker build -t aaronlee/miniflux-postgres:15-bullseye-slim .
+          docker buildx build --platform linux/amd64 -t aaronlee/miniflux-postgres:latest .
+          docker buildx build --platform linux/amd64 -t aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }} .
+          docker buildx build --platform linux/amd64 -t aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}-$(date +%Y%m%d%H%M%S) .
           docker login -u $DOCKER_USERNAME -p $DOCKERHUB_TOKEN
-          docker push aaronlee/miniflux-postgres:15-bullseye-slim
+          docker push aaronlee/miniflux-postgres:latest
+          docker push aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}
+          docker push aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}-$(date +%Y%m%d%H%M%S)
+
+      - name: Build and push Docker image for arm64
+        if: steps.check_build.outputs.build == 'true'
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          docker buildx build --platform linux/arm64 -t aaronlee/miniflux-postgres:latest .
+          docker buildx build --platform linux/arm64 -t aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }} .
+          docker buildx build --platform linux/arm64 -t aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}-$(date +%Y%m%d%H%M%S) .
+          docker login -u $DOCKER_USERNAME -p $DOCKERHUB_TOKEN
+          docker push aaronlee/miniflux-postgres:latest
+          docker push aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}
+          docker push aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}-$(date +%Y%m%d%H%M%S)
+
+      - name: Build and push Docker image for armv7
+        if: steps.check_build.outputs.build == 'true'
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          docker buildx build --platform linux/arm/v7 -t aaronlee/miniflux-postgres:latest .
+          docker buildx build --platform linux/arm/v7 -t aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }} .
+          docker buildx build --platform linux/arm/v7 -t aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}-$(date +%Y%m%d%H%M%S) .
+          docker login -u $DOCKER_USERNAME -p $DOCKERHUB_TOKEN
+          docker push aaronlee/miniflux-postgres:latest
+          docker push aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}
+          docker push aaronlee/miniflux-postgres:${{ steps.docker_version.outputs.version }}-$(date +%Y%m%d%H%M%S)
 
       - name: Configure Git credentials
         run: |
