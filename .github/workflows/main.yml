@@ -72,7 +72,7 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version.split('.')[0:2] | join('.') }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version.split('.')[0] }}.${{ steps.docker_version.outputs.version.split('.')[1] }}
             ${{ secrets.DOCKERHUB_USERNAME }}/miniflux-postgres:${{ steps.docker_version.outputs.version }}-${{ steps.set-timestamp.outputs.timestamp }}
 
 
