@@ -48,7 +48,9 @@ jobs:
       - name: Extract version prefix
         id: extract_version_prefix
         run: |
-          echo "::set-output name=version_prefix::${{ steps.docker_version.outputs.version }}" | cut -c 1-2
+          version=${{ steps.docker_version.outputs.version }}
+          version_prefix=${version:0:2}
+          echo "::set-output name=version_prefix::$version_prefix"
 
       - name: Login to Docker Hub
         if: steps.check_build.outputs.build == 'true'
