@@ -1,4 +1,4 @@
-FROM postgres:15-bullseye
+FROM postgres:15
 
 LABEL maintainer="loyayz - https://loyayz.com"
 
