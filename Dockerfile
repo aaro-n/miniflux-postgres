@@ -17,7 +17,7 @@ RUN apt-get update \
            libc6-dev \
            postgresql-15-cron \
            postgresql-server-dev-$PG_MAJOR \
-           \
+           libc-bin \
       ## install scws
       && cd / \
       && wget -q -O - $SCWS_URL | tar xjf - \
